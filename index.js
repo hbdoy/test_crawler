@@ -28,11 +28,7 @@ var server = app.listen(process.env.PORT || 3000, function () {
 });
 
 app.get('/', function (req, res) {
-    var message = {
-        flag: '{DOnt_hACk_mE_QQ}'
-    }
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.status(200).send(JSON.stringify(message));
+    checkRate(res);
 });
 
 var allNum = [38, 39, 40, 41, 42, 43, 44, 45, 67, 68, 69, 70, 71, 72, 73];
@@ -75,11 +71,54 @@ function getData(tid) {
             }
         }
         getData(allNum[++index]);
-        // db.ref("/38").once('value', function (snap) {
-        //     allData = snap.val();
-        //     console.log(allData);
-        // })
     })
 }
 
-getData(allNum[index]);
+// getData(allNum[index]);
+
+function checkRate(res) {
+    var allData, final = {};
+    db.ref().once('value', function (snap) {
+        allData = snap.val();
+        // console.log(allData);
+        for (let key in allData) {
+            let tmp = [],
+                gg = 0;
+            final[key] = {};
+            for (let inner_key in allData[key]) {
+                tmp.push(allData[key][inner_key]);
+            }
+            // 確保順序由小至大
+            tmp.sort(function (a, b) {
+                return a.c > b.c ? 1 : -1;
+            });
+            for (let i = 0; i < tmp.length; i++) {
+                if (tmp[i].f == true) {
+                    if (gg == 0) {
+                        // 正常情況
+                        if (!final[key][tmp[i].e]) {
+                            final[key][tmp[i].e] = 1;
+                        } else {
+                            final[key][tmp[i].e]++;
+                        }
+                    } else {
+                        if (!final[key][tmp[i].e + 3 * gg]) {
+                            final[key][tmp[i].e + 3 * gg] = 1;
+                        } else {
+                            final[key][tmp[i].e + 3 * gg]++;
+                        }
+                        gg = 0;
+                    }
+                } else if (tmp[i].f == false) {
+                    gg++;
+                }
+            }
+
+        }
+        // console.log(final);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.status(200).send(JSON.stringify(final));
+    })
+}
+
+// checkRate();
