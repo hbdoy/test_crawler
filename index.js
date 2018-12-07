@@ -74,7 +74,7 @@ function getData(tid) {
     })
 }
 
-// getData(allNum[index]);
+getData(allNum[index]);
 
 function checkRate(res) {
     var allData, final = {};
