@@ -78,9 +78,19 @@ getData(allNum[index]);
 
 function checkRate(res) {
     var allData, final = {};
+    var total = 0,
+        benefit = {
+            "1": 49,
+            "2": 53,
+            "3": 61,
+            "4": 76,
+            "5": 111,
+            "6": 185,
+            "lose": 3825
+        };
     db.ref().once('value', function (snap) {
         allData = snap.val();
-        // console.log(allData);
+        console.log(allData);
         for (let key in allData) {
             let tmp = [],
                 gg = 0;
@@ -101,11 +111,17 @@ function checkRate(res) {
                         } else {
                             final[key][tmp[i].e]++;
                         }
+                        total += benefit[tmp[i].e];
                     } else {
                         if (!final[key][tmp[i].e + 3 * gg]) {
                             final[key][tmp[i].e + 3 * gg] = 1;
                         } else {
                             final[key][tmp[i].e + 3 * gg]++;
+                        }
+                        if ((tmp[i].e + 3 * gg) > 6) {
+                            total -= benefit.lose;
+                        } else {
+                            total += benefit[tmp[i].e + 3 * gg];
                         }
                         gg = 0;
                     }
@@ -116,6 +132,7 @@ function checkRate(res) {
 
         }
         // console.log(final);
+        final.benefit = total;
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.status(200).send(JSON.stringify(final));
     })
