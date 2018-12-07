@@ -31,6 +31,10 @@ app.get('/', function (req, res) {
     checkRate(res);
 });
 
+app.get('/:id', function (req, res) {
+    checkRate(res, req.params.id);
+});
+
 var allNum = [38, 39, 40, 41, 42, 43, 44, 45, 67, 68, 69, 70, 71, 72, 73];
 var index = 0;
 
@@ -76,7 +80,7 @@ function getData(tid) {
 
 getData(allNum[index]);
 
-function checkRate(res) {
+function checkRate(res, limit = 0) {
     var allData, final = {};
     var total = 0,
         benefit = {
@@ -90,7 +94,7 @@ function checkRate(res) {
         };
     db.ref().once('value', function (snap) {
         allData = snap.val();
-        console.log(allData);
+        // console.log(allData);
         for (let key in allData) {
             let tmp = [],
                 gg = 0;
@@ -102,6 +106,9 @@ function checkRate(res) {
             tmp.sort(function (a, b) {
                 return a.c > b.c ? 1 : -1;
             });
+            if (limit > 0) {
+                tmp.splice(0, tmp.length - limit);
+            }
             for (let i = 0; i < tmp.length; i++) {
                 if (tmp[i].f == true) {
                     if (gg == 0) {
