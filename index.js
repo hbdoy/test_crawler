@@ -194,8 +194,8 @@ function checkRate(res, limit = 0, startUid = 0, endUid = 0) {
         final.benefit = total;
         final.fail_nums = fail_nums;
         final.all_nums = lastId - firstId + 1;
-        final.all_rate = fail_nums / final.all_nums;
-        final.per_rate = perLose / 15;
+        final.total_fail_rate = fail_nums / (final.all_nums * 15); // 遇到6收以上之機率
+        final.per_rate = 1 - (perLose / 15); // 選擇某組下到底 能正收之機率
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.status(200).send(JSON.stringify(final));
     })
@@ -234,12 +234,16 @@ function checkFail(res) {
                         }
                         for (let j = 0; j < test_tmp.length; j++) {
                             if (test_tmp[j].f == false && test_tmp[j].c == parseInt(tmp[i].c) + 3) {
+                                // 發生跨組連倒
                                 // console.log(tmp[i].c, test_tmp[j].c);
-                                if (!final[tmp[i].c]) {
-                                    final[tmp[i].c] = {};
-                                    final[tmp[i].c].fail = 1;
+                                if (!final[key]) {
+                                    final[key] = {};
+                                }
+                                if (!final[key][tmp[i].c]) {
+                                    final[key][tmp[i].c] = {};
+                                    final[key][tmp[i].c].fail = 1;
                                 } else {
-                                    final[tmp[i].c].fail++;
+                                    final[key][tmp[i].c].fail++;
                                 }
                             }
                         }
@@ -249,9 +253,15 @@ function checkFail(res) {
         }
         // 跨組連倒的機率
         for (let key in final) {
-            rate += final[key].fail / 15;
+            let per_rate = 0, per_count = 0;
+            for(let inner_key in final[key]){
+                per_rate += final[key][inner_key].fail / 15;
+                per_count++;
+            }
+            rate += per_rate / per_count;
             count++;
         }
+        final = {};
         if (rate != 0) {
             final.rate = rate / count;
         }
