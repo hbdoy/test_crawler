@@ -35,6 +35,10 @@ app.get('/:id', function (req, res) {
     checkRate(res, req.params.id);
 });
 
+app.get('/:id/:uid', function (req, res) {
+    checkRate(res, req.params.id, req.params.uid);
+});
+
 var allNum = [38, 39, 40, 41, 42, 43, 44, 45, 67, 68, 69, 70, 71, 72, 73];
 var index = 0;
 
@@ -80,7 +84,9 @@ function getData(tid) {
 
 getData(allNum[index]);
 
-function checkRate(res, limit = 0) {
+// limit 為限制比數
+// uid 為期數限制，可用來統計指定天數之收益
+function checkRate(res, limit = 0, uid = 0) {
     var allData, final = {};
     var total = 0,
         benefit = {
@@ -101,7 +107,13 @@ function checkRate(res, limit = 0) {
                 earn = 0;
             final[key] = {};
             for (let inner_key in allData[key]) {
-                tmp.push(allData[key][inner_key]);
+                if (uid > 0) {
+                    if (inner_key >= uid) {
+                        tmp.push(allData[key][inner_key]);
+                    }
+                } else {
+                    tmp.push(allData[key][inner_key]);
+                }
             }
             // 確保順序由小至大
             tmp.sort(function (a, b) {
