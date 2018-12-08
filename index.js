@@ -78,7 +78,7 @@ function getData(tid) {
     })
 }
 
-getData(allNum[index]);
+// getData(allNum[index]);
 
 function checkRate(res, limit = 0) {
     var allData, final = {};
@@ -97,7 +97,8 @@ function checkRate(res, limit = 0) {
         // console.log(allData);
         for (let key in allData) {
             let tmp = [],
-                gg = 0;
+                gg = 0,
+                earn = 0;
             final[key] = {};
             for (let inner_key in allData[key]) {
                 tmp.push(allData[key][inner_key]);
@@ -118,6 +119,7 @@ function checkRate(res, limit = 0) {
                         } else {
                             final[key][tmp[i].e]++;
                         }
+                        earn += benefit[tmp[i].e];
                         total += benefit[tmp[i].e];
                     } else {
                         if (!final[key][tmp[i].e + 3 * gg]) {
@@ -126,8 +128,10 @@ function checkRate(res, limit = 0) {
                             final[key][tmp[i].e + 3 * gg]++;
                         }
                         if ((tmp[i].e + 3 * gg) > 6) {
+                            earn -= benefit.lose;
                             total -= benefit.lose;
                         } else {
+                            earn += benefit[tmp[i].e + 3 * gg];
                             total += benefit[tmp[i].e + 3 * gg];
                         }
                         gg = 0;
@@ -136,7 +140,7 @@ function checkRate(res, limit = 0) {
                     gg++;
                 }
             }
-
+            final[key].earn = earn;
         }
         // console.log(final);
         final.benefit = total;
