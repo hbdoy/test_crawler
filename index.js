@@ -35,8 +35,12 @@ app.get('/:id', function (req, res) {
     checkRate(res, req.params.id);
 });
 
-app.get('/:id/:uid', function (req, res) {
-    checkRate(res, req.params.id, req.params.uid);
+app.get('/:id/:startUid', function (req, res) {
+    checkRate(res, req.params.id, req.params.startUid);
+});
+
+app.get('/:id/:startUid/:endUid', function (req, res) {
+    checkRate(res, req.params.id, req.params.startUid, req.params.endUid);
 });
 
 var allNum = [38, 39, 40, 41, 42, 43, 44, 45, 67, 68, 69, 70, 71, 72, 73];
@@ -85,8 +89,9 @@ function getData(tid) {
 getData(allNum[index]);
 
 // limit 為限制比數
-// uid 為期數限制，可用來統計指定天數之收益
-function checkRate(res, limit = 0, uid = 0) {
+// startUid 為期數限制，可用來統計指定天數之收益(startAt)
+// endUid 為期數限制，可用來統計指定天數之收益(endAt)
+function checkRate(res, limit = 0, startUid = 0, endUid = 0) {
     var allData, final = {};
     var total = 0,
         benefit = {
@@ -107,8 +112,16 @@ function checkRate(res, limit = 0, uid = 0) {
                 earn = 0;
             final[key] = {};
             for (let inner_key in allData[key]) {
-                if (uid > 0) {
-                    if (inner_key >= uid) {
+                if (startUid > 0 && endUid > 0) {
+                    if (inner_key >= startUid && inner_key <= endUid) {
+                        tmp.push(allData[key][inner_key]);
+                    }
+                } else if (startUid > 0 && endUid == 0) {
+                    if (inner_key >= startUid) {
+                        tmp.push(allData[key][inner_key]);
+                    }
+                } else if (startUid == 0 && endUid > 0) {
+                    if (inner_key <= endUid) {
                         tmp.push(allData[key][inner_key]);
                     }
                 } else {
