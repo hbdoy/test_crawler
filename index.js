@@ -170,8 +170,18 @@ function checkRate(res, limit = 0, startUid = 0, endUid = 0) {
                             final[key][tmp[i].e + 3 * gg]++;
                         }
                         if ((tmp[i].e + 3 * gg) > 6) {
-                            earn -= benefit.lose;
-                            total -= benefit.lose;
+                            let tmpNum = tmp[i].e + 3 * gg;
+                            do {
+                                earn -= benefit.lose;
+                                total -= benefit.lose;
+                                tmpNum -= 6;
+                                if (tmpNum <= 6) {
+                                    // 實務上 6 關倒就放棄
+                                    earn += benefit[tmpNum];
+                                    total += benefit[tmpNum];
+                                    break;
+                                }
+                            } while (tmpNum > 0);
                             // 總失敗次數
                             fail_nums++;
                         } else {
@@ -185,7 +195,7 @@ function checkRate(res, limit = 0, startUid = 0, endUid = 0) {
                 }
             }
             final[key].earn = earn;
-            if(earn < 0){
+            if (earn < 0) {
                 // 單組之虧損數量
                 perLose++;
             }
@@ -253,8 +263,9 @@ function checkFail(res) {
         }
         // 跨組連倒的機率
         for (let key in final) {
-            let per_rate = 0, per_count = 0;
-            for(let inner_key in final[key]){
+            let per_rate = 0,
+                per_count = 0;
+            for (let inner_key in final[key]) {
                 per_rate += final[key][inner_key].fail / 15;
                 per_count++;
             }
