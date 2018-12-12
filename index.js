@@ -118,6 +118,8 @@ function checkRate(res, limit = 0, startUid = 0, endUid = 0) {
             let tmp = [],
                 gg = 0,
                 earn = 0;
+            // 第幾場第一次倒
+            var firstFail = 0;
             final[key] = {};
             for (let inner_key in allData[key]) {
                 if (startUid > 0 && endUid > 0) {
@@ -170,6 +172,9 @@ function checkRate(res, limit = 0, startUid = 0, endUid = 0) {
                             final[key][tmp[i].e + 3 * gg]++;
                         }
                         if ((tmp[i].e + 3 * gg) > 6) {
+                            if (firstFail == 0) {
+                                firstFail = i + 1;
+                            }
                             let tmpNum = tmp[i].e + 3 * gg;
                             do {
                                 earn -= benefit.lose;
@@ -195,6 +200,7 @@ function checkRate(res, limit = 0, startUid = 0, endUid = 0) {
                 }
             }
             final[key].earn = earn;
+            final[key].firstFail = firstFail;
             if (earn < 0) {
                 // 單組之虧損數量
                 perLose++;
